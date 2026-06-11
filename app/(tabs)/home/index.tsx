@@ -1,35 +1,8 @@
-// Tela principla do gerenciador de tarefas
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { globalTasks } from '../../../types/store';
 import { Task } from '../../../types/task';
-
-const mockTasks: Task[] = [
-  { 
-    id: '1', 
-    titulo: 'Prova de PPDM', 
-    data: '15/06/2026', 
-    categoria: 'Prova',
-    descricao: 'Prova da disciplina de PPDM',
-    professor: 'Prof. Irineu'
-  },
-  { 
-    id: '2', 
-    titulo: 'Entrega de BCD', 
-    data: '18/06/2026', 
-    categoria: 'Trabalho',
-    descricao: 'Entrega da disciplina de BCD',
-    professor: 'Prof. Irineu'
-  },
-  { 
-    id: '3', 
-    titulo: 'Exercício de React Native', 
-    data: '12/06/2026', 
-    categoria: 'Atividade',
-    descricao: 'Exercício de React Native',
-    professor: 'Prof. Irineu'
-  },
-];
-
 
 const SESI_COLORS = {
   primaryRed: '#E30613',
@@ -41,7 +14,16 @@ const SESI_COLORS = {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const [tasks, setTasks] = useState<Task[]>([]);
 
+  // Atualiza a lista toda vez que a tela ganha foco de navegação
+  useFocusEffect(
+    useCallback(() => {
+      setTasks([...globalTasks]);
+    }, [])
+  );
+
+  // Função para renderizar cada item da lista (Exibe apenas as info básicas solicitadas)
   const renderItem = ({ item }: { item: Task }) => (
     <TouchableOpacity 
       style={styles.taskCard}
@@ -66,10 +48,13 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <FlatList
-        data={mockTasks}
+        data={tasks}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>Nenhuma tarefa pendente! 🎉</Text>
+        }
       />
     </View>
   );
@@ -88,7 +73,7 @@ const styles = StyleSheet.create({
     borderRadius: 8, 
     marginBottom: 12, 
     flexDirection: 'row', 
-    overflow: 'hidden',
+    overflow: 'hidden', 
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -97,7 +82,7 @@ const styles = StyleSheet.create({
   },
   brandIndicator: {
     width: 6,
-    backgroundColor: SESI_COLORS.primaryRed,
+    backgroundColor: SESI_COLORS.primaryRed, 
   },
   cardContent: {
     flex: 1,
@@ -113,7 +98,7 @@ const styles = StyleSheet.create({
   taskTitle: { 
     fontSize: 16, 
     fontWeight: '700', 
-    color: SESI_COLORS.darkBlue,
+    color: SESI_COLORS.darkBlue, 
   },
   taskDate: { 
     fontSize: 13, 
@@ -122,7 +107,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   badge: { 
-    backgroundColor: '#E6EFF9',
+    backgroundColor: '#E6EFF9', 
     paddingHorizontal: 10, 
     paddingVertical: 6, 
     borderRadius: 20, 
@@ -133,4 +118,11 @@ const styles = StyleSheet.create({
     color: SESI_COLORS.darkBlue,
     textTransform: 'uppercase',
   },
+  emptyText: { 
+    textAlign: 'center', 
+    color: '#777777', 
+    marginTop: 40, 
+    fontSize: 16,
+    fontWeight: '500'
+  }
 });
