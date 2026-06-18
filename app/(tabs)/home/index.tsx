@@ -1,6 +1,13 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  TextInput,
+} from 'react-native';
 import { globalTasks } from '../../../types/store';
 import { Task } from '../../../types/task';
 
@@ -20,12 +27,18 @@ const categoryColors = {
 
 export default function HomeScreen() {
   const router = useRouter();
+
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [search, setSearch] = useState('');
 
   useFocusEffect(
     useCallback(() => {
       setTasks([...globalTasks]);
     }, [])
+  );
+
+  const filteredTasks = tasks.filter((task) =>
+    task.titulo.toLowerCase().includes(search.toLowerCase())
   );
 
   const renderItem = ({ item }: { item: Task }) => (
@@ -92,8 +105,15 @@ export default function HomeScreen() {
         </Text>
       </View>
 
+      <TextInput
+        style={styles.searchInput}
+        placeholder="🔍 Pesquisar tarefa..."
+        value={search}
+        onChangeText={setSearch}
+      />
+
       <FlatList
-        data={tasks}
+        data={filteredTasks}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
@@ -102,11 +122,11 @@ export default function HomeScreen() {
             <Text style={styles.emptyIcon}>📝</Text>
 
             <Text style={styles.emptyTitle}>
-              Nenhuma tarefa cadastrada
+              Nenhuma tarefa encontrada
             </Text>
 
             <Text style={styles.emptySubtitle}>
-              Clique no botão + para criar uma tarefa
+              Tente pesquisar outro nome ou adicione uma nova tarefa
             </Text>
           </View>
         }
@@ -137,6 +157,17 @@ const styles = StyleSheet.create({
     color: SESI_COLORS.textGray,
     marginTop: 4,
     marginBottom: 12,
+  },
+
+  searchInput: {
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    height: 48,
+    fontSize: 15,
+    elevation: 2,
   },
 
   list: {
