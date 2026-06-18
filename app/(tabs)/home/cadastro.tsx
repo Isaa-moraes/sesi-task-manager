@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { globalTasks, setGlobalTasks } from '../../../types/store';
+import {
+  globalTasks,
+  setGlobalTasks,
+  activateSuccessToast,
+} from '../../../types/store';
 import { Task } from '../../../types/task';
 
 export default function CadastroScreen() {
@@ -28,6 +32,7 @@ export default function CadastroScreen() {
     };
 
     setGlobalTasks([...globalTasks, novaTarefa]);
+    activateSuccessToast();
     router.replace('/home'); // Volta atualizando a lista
   };
 

@@ -8,8 +8,12 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import { setGlobalTasks } from '../../../types/store';
-import { globalTasks } from '../../../types/store';
+import {
+  globalTasks,
+  setGlobalTasks,
+  showSuccessToast,
+  resetSuccessToast,
+} from '../../../types/store';
 import { Task } from '../../../types/task';
 
 const SESI_COLORS = {
@@ -32,6 +36,7 @@ export default function HomeScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [search, setSearch] = useState('');
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showTaskToast, setShowTaskToast] = useState(false);
 
   useEffect(() => {
     setShowWelcome(true);
@@ -46,6 +51,16 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       setTasks([...globalTasks]);
+
+      if (showSuccessToast) {
+        setShowTaskToast(true);
+
+        setTimeout(() => {
+          setShowTaskToast(false);
+        }, 2000);
+
+        resetSuccessToast();
+      }
     }, [])
   );
 
@@ -66,7 +81,7 @@ export default function HomeScreen() {
       onLongPress={() => {
         if (confirm(`Deseja excluir "${item.titulo}"?`)) {
           const novasTasks = globalTasks.filter(
-            task => task.id !== item.id
+            (task) => task.id !== item.id
           );
 
           setGlobalTasks(novasTasks);
@@ -113,6 +128,7 @@ export default function HomeScreen() {
     </TouchableOpacity>
   );
 
+
   return (
     <View style={styles.container}>
       {showWelcome && (
@@ -126,6 +142,22 @@ export default function HomeScreen() {
 
             <Text style={styles.toastText}>
               Sesi Task Manager
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {showTaskToast && (
+        <View style={styles.toastOverlay}>
+          <View style={styles.successToast}>
+            <Text style={styles.toastEmoji}>✅</Text>
+
+            <Text style={styles.toastTitle}>
+              Sucesso!
+            </Text>
+
+            <Text style={styles.toastText}>
+              Tarefa cadastrada com sucesso
             </Text>
           </View>
         </View>
@@ -149,6 +181,10 @@ export default function HomeScreen() {
         value={search}
         onChangeText={setSearch}
       />
+
+      <Text style={styles.tipText}>
+        Segure uma tarefa para excluí-la
+      </Text>
 
       <FlatList
         data={filteredTasks}
@@ -208,6 +244,18 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
   },
 
+  successToast: {
+    width: '75%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingVertical: 22,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#28A745',
+    elevation: 8,
+  },
+
   toastEmoji: {
     fontSize: 34,
     marginBottom: 10,
@@ -256,6 +304,13 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
 
+  tipText: {
+    fontSize: 14,
+    color: SESI_COLORS.textGray,
+    marginTop: 4,
+    marginBottom: 12,
+  },
+
   list: {
     paddingHorizontal: 16,
     paddingBottom: 16,
@@ -268,13 +323,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     overflow: 'hidden',
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
 
   brandIndicator: {
