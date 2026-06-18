@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -30,6 +30,17 @@ export default function HomeScreen() {
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [search, setSearch] = useState('');
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    setShowWelcome(true);
+
+    const timer = setTimeout(() => {
+      setShowWelcome(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -93,6 +104,22 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      {showWelcome && (
+        <View style={styles.toastOverlay}>
+          <View style={styles.toast}>
+            <Text style={styles.toastEmoji}>👋</Text>
+
+            <Text style={styles.toastTitle}>
+              Bem-vinda!
+            </Text>
+
+            <Text style={styles.toastText}>
+              Sesi Task Manager
+            </Text>
+          </View>
+        </View>
+      )}
+
       <View style={styles.headerInfo}>
         <Text style={styles.welcomeText}>
           Olá, Isadora 👋
@@ -139,6 +166,54 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: SESI_COLORS.lightGray,
+  },
+
+  toastOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+
+  toast: {
+    width: '75%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingVertical: 22,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+  },
+
+  toastEmoji: {
+    fontSize: 34,
+    marginBottom: 10,
+  },
+
+  toastTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#002F6C',
+    textAlign: 'center',
+  },
+
+  toastText: {
+    fontSize: 14,
+    color: '#555555',
+    marginTop: 6,
+    textAlign: 'center',
   },
 
   headerInfo: {
