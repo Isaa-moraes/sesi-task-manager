@@ -12,34 +12,67 @@ const SESI_COLORS = {
   white: '#FFFFFF',
 };
 
+const categoryColors = {
+  Prova: '#E30613',
+  Trabalho: '#002F6C',
+  Atividade: '#28A745',
+};
+
 export default function HomeScreen() {
   const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  // Atualiza a lista toda vez que a tela ganha foco de navegação
   useFocusEffect(
     useCallback(() => {
       setTasks([...globalTasks]);
     }, [])
   );
 
-  // Função para renderizar cada item da lista (Exibe apenas as info básicas solicitadas)
   const renderItem = ({ item }: { item: Task }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
+      activeOpacity={0.85}
       style={styles.taskCard}
-      onPress={() => router.push({ pathname: '/home/details', params: { ...item } })}
+      onPress={() =>
+        router.push({
+          pathname: '/home/details',
+          params: { ...item },
+        })
+      }
     >
-      {/* Indicador lateral vermelho para dar o destaque da marca */}
       <View style={styles.brandIndicator} />
-      
+
       <View style={styles.cardContent}>
         <View style={styles.textContainer}>
           <Text style={styles.taskTitle}>{item.titulo}</Text>
-          <Text style={styles.taskDate}>Prazo: {item.data}</Text>
+
+          <Text style={styles.taskDate}>
+            📅 {item.data}
+          </Text>
+
+          <Text style={styles.professorText}>
+            👨‍🏫 {item.professor}
+          </Text>
         </View>
-        
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{item.categoria}</Text>
+
+        <View
+          style={[
+            styles.badge,
+            {
+              backgroundColor:
+                categoryColors[item.categoria] + '20',
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.badgeText,
+              {
+                color: categoryColors[item.categoria],
+              },
+            ]}
+          >
+            {item.categoria}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -47,13 +80,35 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.headerInfo}>
+        <Text style={styles.welcomeText}>
+          Olá, Isadora 👋
+        </Text>
+
+        <Text style={styles.taskCount}>
+          Você possui {tasks.length} tarefa
+          {tasks.length !== 1 ? 's' : ''} pendente
+          {tasks.length !== 1 ? 's' : ''}
+        </Text>
+      </View>
+
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>Nenhuma tarefa pendente! 🎉</Text>
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyIcon}>📝</Text>
+
+            <Text style={styles.emptyTitle}>
+              Nenhuma tarefa cadastrada
+            </Text>
+
+            <Text style={styles.emptySubtitle}>
+              Clique no botão + para criar uma tarefa
+            </Text>
+          </View>
         }
       />
     </View>
@@ -61,29 +116,55 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: SESI_COLORS.lightGray 
+  container: {
+    flex: 1,
+    backgroundColor: SESI_COLORS.lightGray,
   },
-  list: { 
-    padding: 16 
+
+  headerInfo: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
-  taskCard: { 
-    backgroundColor: SESI_COLORS.white, 
-    borderRadius: 8, 
-    marginBottom: 12, 
-    flexDirection: 'row', 
-    overflow: 'hidden', 
+
+  welcomeText: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: SESI_COLORS.darkBlue,
+  },
+
+  taskCount: {
+    fontSize: 14,
+    color: SESI_COLORS.textGray,
+    marginTop: 4,
+    marginBottom: 12,
+  },
+
+  list: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+
+  taskCard: {
+    backgroundColor: SESI_COLORS.white,
+    borderRadius: 10,
+    marginBottom: 12,
+    flexDirection: 'row',
+    overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
+
   brandIndicator: {
     width: 6,
-    backgroundColor: SESI_COLORS.primaryRed, 
+    backgroundColor: SESI_COLORS.primaryRed,
   },
+
   cardContent: {
     flex: 1,
     padding: 16,
@@ -91,38 +172,64 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+
   textContainer: {
     flex: 1,
     paddingRight: 8,
   },
-  taskTitle: { 
-    fontSize: 16, 
-    fontWeight: '700', 
-    color: SESI_COLORS.darkBlue, 
+
+  taskTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: SESI_COLORS.darkBlue,
   },
-  taskDate: { 
-    fontSize: 13, 
-    color: SESI_COLORS.textGray, 
+
+  taskDate: {
+    fontSize: 13,
+    color: SESI_COLORS.textGray,
     marginTop: 4,
     fontWeight: '500',
   },
-  badge: { 
-    backgroundColor: '#E6EFF9', 
-    paddingHorizontal: 10, 
-    paddingVertical: 6, 
-    borderRadius: 20, 
+
+  professorText: {
+    fontSize: 13,
+    color: SESI_COLORS.textGray,
+    marginTop: 3,
   },
-  badgeText: { 
-    fontSize: 11, 
-    fontWeight: '700', 
-    color: SESI_COLORS.darkBlue,
+
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+
+  badgeText: {
+    fontSize: 11,
+    fontWeight: '700',
     textTransform: 'uppercase',
   },
-  emptyText: { 
-    textAlign: 'center', 
-    color: '#777777', 
-    marginTop: 40, 
-    fontSize: 16,
-    fontWeight: '500'
-  }
+
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: 80,
+  },
+
+  emptyIcon: {
+    fontSize: 50,
+  },
+
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: SESI_COLORS.darkBlue,
+    marginTop: 12,
+  },
+
+  emptySubtitle: {
+    fontSize: 14,
+    color: SESI_COLORS.textGray,
+    marginTop: 8,
+    textAlign: 'center',
+    paddingHorizontal: 30,
+  },
 });
