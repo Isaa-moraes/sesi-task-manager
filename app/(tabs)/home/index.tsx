@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
+import { setGlobalTasks } from '../../../types/store';
 import { globalTasks } from '../../../types/store';
 import { Task } from '../../../types/task';
 
@@ -62,6 +63,16 @@ export default function HomeScreen() {
           params: { ...item },
         })
       }
+      onLongPress={() => {
+        if (confirm(`Deseja excluir "${item.titulo}"?`)) {
+          const novasTasks = globalTasks.filter(
+            task => task.id !== item.id
+          );
+
+          setGlobalTasks(novasTasks);
+          setTasks([...novasTasks]);
+        }
+      }}
     >
       <View style={styles.brandIndicator} />
 
